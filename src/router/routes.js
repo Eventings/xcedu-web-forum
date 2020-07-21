@@ -1,5 +1,5 @@
 const forumLayout = {
-  name: '/mfs-forum',
+  name: 'forum',
   path: '/mfs-forum',
   redirect: '/mfs-forum/home',
   component: () => import('@page/layout.vue'),
@@ -35,4 +35,16 @@ const forumLayout = {
     component: () => import('@page/notice/index')
   }]
 }
-export default [forumLayout]
+
+const newArtical = {
+  name: 'newArtical',
+  path: '/mfs-forum/newArtical',
+  component: () => import('@page/article/newArticle')
+}
+
+const previewDetails = {
+  name: 'previewDetails',
+  path: '/mfs-forum/previewDetails',
+  component: () => import('@page/forum/previewDetails')
+}
+export default [forumLayout, newArtical, previewDetails]
