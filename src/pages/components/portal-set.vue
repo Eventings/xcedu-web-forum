@@ -1,10 +1,10 @@
 <template>
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
-    <el-form ref="numberValidateForm" :model="form" size="medium">
-      <el-form-item label="版块名称" :label-width="formLabelWidth" prop="name">
-        <el-input v-model="form.name" autocomplete="off" />
+    <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium">
+      <el-form-item label="版块名称" :label-width="formLabelWidth" prop="plateName">
+        <el-input v-model="form.plateName" />
       </el-form-item>
-      <el-form-item label="管理员" :label-width="formLabelWidth">
+      <el-form-item label="管理员" :label-width="formLabelWidth" prop="plateAdminJson">
         <chooseUser ref="manager" v-model="form.plateAdminJson" :allow-write="false" :select-role="roles" />
       </el-form-item>
     </el-form>
@@ -36,7 +36,11 @@ export default {
       roles: ['orgUser'],
       rules: {
         plateName: [
-          { required: true, message: '板块名称不能为空', trigger: 'blur' }
+          { required: true, message: '版块名称不能为空', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在 1 到 10 个字符', trigger: 'blur' }
+        ],
+        plateAdminJson: [
+          { required: true, message: '请选择管理员', trigger: 'blur' }
         ]
       }
     }
@@ -45,7 +49,7 @@ export default {
     if (this.id !== '') {
       detailPlate({ id: this.id }).then(res => {
         this.form.plateName = res.plateName
-      // this.form.plateAdminJson = res.plateAdminJson
+        this.form.plateAdminJson = JSON.parse(res.plateAdminJson)
       })
     }
   },
@@ -61,9 +65,14 @@ export default {
       })
     },
     submit () {
+      const params = {
+        id: this.id,
+        plateName: this.form.plateName,
+        plateAdminJson: JSON.stringify(this.form.plateAdminJson)
+      }
       // 提交表单 成功后返回列表
       if (this.id === '') {
-        savePlate(this.form).then(res => {
+        savePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '添加成功',
@@ -75,12 +84,10 @@ export default {
               type: 'error'
             })
           }
-          setTimeout(() => {
-            this.$emit('closePortal')
-          }, 2000)
+          this.$emit('closePortal')
         })
       } else {
-        updatePlate().then(res => {
+        updatePlate(params).then(res => {
           if (res) {
             this.$message({
               message: '修改成功',
@@ -93,9 +100,7 @@ export default {
             })
           }
         })
-        setTimeout(() => {
-          this.$emit('closePortal')
-        }, 1000)
+        this.$emit('closePortal')
       }
     },
     cancal () {

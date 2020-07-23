@@ -15,8 +15,8 @@
           placeholder="标题"
         />
       </el-form-item>
-      <el-form-item label="所属板块" prop="plateId">
-        <el-select v-model="form.plateId" placeholder="所属板块" style="width: 100%;">
+      <el-form-item label="所属版块" prop="plateId">
+        <el-select v-model="form.plateId" placeholder="所属版块" style="width: 100%;">
           <el-option
             v-for="item in options"
             :key="item.id"
@@ -31,17 +31,17 @@
       <el-form-item label="相关图片">
         <fileUp v-model="form.imgFileIds" accept="image/*" accept-tips="只能上传图片格式的文件" dir="dir" />
       </el-form-item>
-      <el-form-item label="附件">
-        <fileUp v-model="form.fileIds" dir="dir" />
-      </el-form-item>
       <el-form-item label="匿名发帖">
-        <el-checkbox v-model="form.anonymousState" @click="changeAnonymous" />
+        <el-checkbox
+          v-model="checked"
+          @change="changeAnonymous"
+        />
       </el-form-item>
     </el-form>
   </section>
 </template>
 <script>
-import { createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
+import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
 import fileUp from '@/component/fileUp'
 import editor from '@/component/editor'
 export default {
@@ -57,6 +57,8 @@ export default {
   },
   data () {
     return {
+      checked: false,
+      domainId: '',
       form: {
         id: '',
         articleTitle: '',
@@ -64,15 +66,17 @@ export default {
         articleContent: '',
         imgFileIds: '',
         fileIds: '',
-        anonymous: 0
+        anonymous: 0,
+        articleIsPub: 1
       },
       options: [],
       rules: {
         articleTitle: [
-          { required: true, message: '请输入标题', trigger: 'blur' }
+          { required: true, message: '请输入标题', trigger: 'blur' },
+          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
         ],
         plateId: [
-          { required: true, message: '请选择所属板块', trigger: 'change' }
+          { required: true, message: '请选择所属版块', trigger: 'change' }
         ],
         articleContent: [
           { required: true, message: '请输入正文', trigger: 'blur' }
@@ -90,7 +94,8 @@ export default {
           articleContent: '',
           imgFileIds: '',
           fileIds: '',
-          anonymous: 0
+          anonymous: 0,
+          articleIsPub: 1
         }
       }
     },
@@ -101,6 +106,9 @@ export default {
     }
   },
   mounted: function () {
+    getUserInfo().then(res => {
+      this.domainId = res.domainId
+    })
     getPlateList().then(res => {
       this.options = res
     })
@@ -114,15 +122,16 @@ export default {
           articleContent: res.articleContent,
           imgFileIds: res.imgFileIds,
           fileIds: res.fileIds,
-          anonymous: res.anonymous
+          anonymous: res.anonymous,
+          articleIsPub: 1
         }
-        this.form.anonymousState = this.form.anonymous === 1
+        this.checked = this.form.anonymous === 1
       })
     }
   },
   methods: {
     changeAnonymous () {
-      this.form.anonymous = this.form.anonymousState ? 1 : 0
+      this.form.anonymous = this.checked ? 1 : 0
     },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {

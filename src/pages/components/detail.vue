@@ -9,8 +9,12 @@
           <el-row>
             <el-col :span="2">
               <div>
-                <el-avatar v-if="item.anonymous === 0" :src="item.imgUrl" />
-                <el-avatar v-else :src="require('@/assets/user.png')" />
+                <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="item.imgUrl" />
+                <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                  {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
+                </div>
+                <el-avatar v-if="item.anonymous === 1" :src="require('@/assets/user.png')" />
+
               </div>
             </el-col>
             <el-col :span="22">
@@ -23,9 +27,9 @@
                   </span>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 0" :command="beforeHandleCommand(index,item.id,'forum','a')">论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 0" :command="beforeHandleCommand(index,item.id,'plate','a')">版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAdmin && item.forumTop == 1" :command="beforeHandleCommand(index,item.id,'forum','b')">取消论坛置顶</el-dropdown-item>
-                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消板块置顶</el-dropdown-item>
+                    <el-dropdown-item v-show="item.userIsAdmin && item.plateTop == 1" :command="beforeHandleCommand(index,item.id,'plate','b')">取消版块置顶</el-dropdown-item>
                     <el-dropdown-item v-show="item.userIsAuthor" :command="beforeHandleCommand(index,item.id,'','c')">编辑</el-dropdown-item>
                     <el-dropdown-item :command="beforeHandleCommand(index,item.id,'','d')">删除</el-dropdown-item>
                   </el-dropdown-menu>
@@ -34,15 +38,15 @@
               <div>
                 <div class="text-color-grey">{{ item.pubDate }}发布</div>
               </div>
-              <div class="margin-top-size-nomal">
+              <div class="margin-top-size-nomal" style="margin-top:10px">
                 <el-tag v-show="item.forumTop == 1 || item.plateTop == 1" type="danger" size="mini">置顶</el-tag>
                 <span style="font-weight:bold" class="size-large">{{ item.articleTitle }}</span>
               </div>
-              <div class="margin-top-size-small">
-                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort" />
+              <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort + ' ...'" />
                 <span v-show="(item.articleContentShort && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
-                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer" @click="expand(index)">展开全文</span>
-                <span v-show="item.expandOpen" class="color" style="cursor:pointer" @click="retract(index)">收起全文</span>
+                <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="expand(index)">展开全文</span>
+                <span v-show="item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="retract(index)">收起全文</span>
               </div>
               <div v-if="item.imgFileIds" class="margin-top-size-nomal">
                 <el-image
@@ -79,11 +83,14 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow: non; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar :src="userInfo.userAvator" />
+                    <el-avatar v-if="userInfo.userAvator" :src="userInfo.userAvator" />
+                    <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                      {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
+                    </div>
                   </el-col>
                   <el-col :span="22">
                     <el-input v-model="input" placeholder="请输入内容" />
@@ -100,7 +107,11 @@
                 </div>
                 <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
                   <el-col :span="2" class="mr-10">
-                    <el-avatar :src="comment.imgUrl" />
+                    <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="comment.imgUrl" />
+                    <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                      {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
+                    </div>
+                    <el-avatar v-if="comment.anonymous === 1" :src="require('@/assets/user.png')" />
                   </el-col>
                   <el-col :span="22">
                     <div>
@@ -110,24 +121,41 @@
                     <div class="dss text-color-grey  margin-top-size-mix ">
                       <span>{{ comment.createdDate }}</span>
                       <div>
-                        <div>
-                          {{ comment.aliasName + ' : ' +comment.commentContent }}
+                        <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复</span>
+                        <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                        <span v-show="comment.userHasLike">
+                          <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                        <span v-show="!comment.userHasLike">
+                          <i class="icon-zan" @click="likeComment(num,comment.id,1)" />
+                          <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div v-show="restore[num]">
+                      <div v-for="(reply,repIndex) in comment.commentVoList" :key="repIndex" style="margin-top:10px">
+                        <span class="color">{{ reply.aliasName }}</span>
+                        <span>回复</span>
+                        <span class="color">{{ reply.commentAliasName }}</span>
+                        <span> : </span>
+                        <span style="margin-left:10px">{{ reply.commentContent }}</span>
+                        <div class="text-color-grey" style="margin-top:5px">
+                          <span>{{ reply.createdDate }}</span>
+                          <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,reply.commentTopId,reply.aliasName)" />
                         </div>
-                        <div class="dss text-color-grey">
-                          <span>{{ comment.createdDate }}</span>
-                          <div>
-                            <span style="cursor:pointer" @click="reflex(num)">回复</span>
-                            <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                            <span v-show="comment.userHasLike">
-                              <i class="el-icon-folder-checked" @click="likeComment(num,comment.id,0)" />
-                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                            </span>
-                            <span v-show="!comment.userHasLike">
-                              <i class="el-icon-folder" @click="likeComment(num,comment.id,1)" />
-                              <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
-                            </span>
-                          </div>
-                        </div>
+                      </div>
+                      <div style="display:flex">
+                        <el-col :span="24" style="margin-top:10px">
+                          <el-input v-model="repInput" :placeholder="'回复 ' + repName +' : '" />
+                        </el-col>
+                      </div>
+                      <div class="dss" style="margin-top:10px">
+                        <el-col :span="24" class="dss">
+                          <el-checkbox v-model="repChecked">匿名回复</el-checkbox>
+                          <el-button type="primary" size="small" @click="repSave(num)">回复</el-button>
+                        </el-col>
                       </div>
                     </div>
                   </el-col>
@@ -144,36 +172,34 @@
 
     <el-card v-if="!isIndexPage" class="box-card-right1 text-color-grey">
       <div slot="header" class="dss">
-        <div style="font-size:12px">管理员</div>
+        <div style="font-size:14px;color:#999">管理员</div>
       </div>
-      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover dss">
-        <el-image
-          style="width: 50px; height: 50px"
-          src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-        />
-        <i v-if="manager.gender === 0" class="el-icon-male text-color-grey" />
-        <i v-else class="el-icon-female text-color-grey" />
-        <span>{{ manager.userName }}</span>
+      <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover" style="display:flex;align-items:center">
+        <el-avatar v-if="manager.userImgUrl" :src="manager.userImgUrl" />
+        <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+          {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
+        </div>
+        <span style="margin-left:10px">{{ manager.userName }}</span>
       </div>
     </el-card>
 
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
-      <div class="text item bghover dss">
-        <div @click="getArticle('myPub')">
+      <div class="text item bghover dss" @click="getArticle('myPub')">
+        <div>
           <i class="icon-send text-color-grey" />
           <span>我发送的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
-      <div class="text item bghover dss">
-        <div @click="getArticle('myComment')">
+      <div class="text item bghover dss" @click="getArticle('myComment')">
+        <div>
           <i class="el-icon-s-comment text-color-grey" />
           <span>我评论的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.commentCount }}</el-tag>
       </div>
-      <div class="text item bghover dss">
-        <div @click="getArticle('myAttention')">
+      <div class="text item bghover dss" @click="getArticle('myAttention')">
+        <div>
           <i class="icon-star-solid text-color-grey" />
           <span>我关注的</span>
         </div>
@@ -187,7 +213,7 @@
       </div>
       <div v-for="(hotArticle,index) in hotArticles" :key="index" class="text item bghover dsshover">
         <div class="dss" @click="preViewDetails(hotArticle.id)">
-          <div v-html="hotArticle.articleTitle" />
+          <div v-html="hotArticle.articleTitle.length>10?hotArticle.articleTitle.slice(0,11)+'...':hotArticle.articleTitle" />
           <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
         </div>
       </div>
@@ -196,7 +222,7 @@
 </template>
 
 <script>
-import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment } from '@/api/index'
+import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment, getMesSummary } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
 export default {
   data () {
@@ -225,7 +251,12 @@ export default {
       plateId: '',
       isIndexPage: true,
       pageFlag: '',
-      plateManager: []
+      plateManager: [],
+      repChecked: false,
+      repInput: '',
+      repComId: '',
+      repTopId: '',
+      repName: ''
     }
   },
   computed: {
@@ -259,7 +290,6 @@ export default {
     }
   },
   created () {
-
   },
   mounted () {
     // 获取list
@@ -279,9 +309,10 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
+
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
-      window.open(href + '?id=' + id, '_blank')
+      window.open(href + '?id=' + id, '_self')
     },
     getArticle (pageFlag) {
       this.pageContent = []
@@ -291,35 +322,81 @@ export default {
       this.recordNum = 0
       this.load()
     },
-
     getMyArticleCount () {
       getMyArticleCount().then(res => {
         this.myCount = res
       })
     },
-
     plateManagerList (plateId) {
       plateManagerList({ id: plateId }).then(res => {
         this.plateManager = res
       })
     },
-
-    sendComment (articleId, index) {
-      saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
+    repReply (id, topId, repName) {
+      this.repComId = id
+      this.repTopId = topId
+      this.repName = repName
+    },
+    repSave (num) {
+      if (!this.repInput) {
+        this.$message({
+          message: '请输入回复内容',
+          type: 'warning'
+        })
+        return false
+      }
+      saveComment({ anonymous: (this.repChecked ? 1 : 0), commentContent: this.repInput, commentTopId: this.repTopId, commentId: this.repComId }).then(res => {
         if (res) {
-          this.$message('评论成功')
-          this.pageContent[index].commentNum++
-          this.getMyArticleCount()
+          this.$message({
+            message: '回复成功',
+            type: 'success'
+          })
+          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName })
+          this.repChecked = false
+          this.repInput = ''
+          // 回复时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         } else {
-          this.$message('评论保存失败')
+          this.$message({
+            message: '回复保存失败',
+            type: 'error'
+          })
         }
       })
     },
-
+    sendComment (articleId, index) {
+      saveComment({ articleId: articleId, anonymous: (this.checked ? 1 : 0), commentContent: this.input }).then(res => {
+        if (res) {
+          this.$message({
+            message: '评论成功',
+            type: 'success'
+          })
+          this.pageContent[index].commentNum++
+          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚' })
+          this.getMyArticleCount()
+          // 评论时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
+        } else {
+          this.$message({
+            message: '评论保存失败',
+            type: 'error'
+          })
+        }
+        this.checked = false
+        this.input = ''
+      })
+    },
     likeComment (index, commentId, flag) {
       likeComment({ index, commentId: commentId, flag: flag }).then(res => {
         if (res) {
-          this.$message('点赞成功')
+          this.$message({
+            message: '点赞成功',
+            type: 'success'
+          })
           if (flag === 0) {
             this.commentList[index].userHasLike = false
             this.commentList[index].commentLikeNum--
@@ -327,12 +404,18 @@ export default {
             this.commentList[index].userHasLike = true
             this.commentList[index].commentLikeNum++
           }
+          // 点赞时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         } else {
-          this.$message('点赞失败')
+          this.$message({
+            message: '点赞失败',
+            type: 'error'
+          })
         }
       })
     },
-
     // 预处理dropdown 将帖子id装入command
     beforeHandleCommand (index, articleId, topFlag, command) {
       return {
@@ -342,64 +425,97 @@ export default {
         topFlag: topFlag
       }
     },
-
     likeArticle (articleId, index, flag) {
       likeArticle({ articleId: articleId, flag: flag }).then(res => {
         if (!res) {
-          this.$message('操作失败')
+          this.$message({
+            message: '操作失败',
+            type: 'error'
+          })
         } else if (flag === 0) {
           this.pageContent[index].likeNum--
           this.pageContent[index].userHasLike = false
-          this.$message('取消点赞成功')
+          this.$message({
+            message: '取消点赞成功',
+            type: 'success'
+          })
         } else if (flag === 1) {
           this.pageContent[index].likeNum++
           this.pageContent[index].userHasLike = true
-          this.$message('点赞成功')
+          this.$message({
+            message: '点赞成功',
+            type: 'success'
+          })
+          // 点赞时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         }
       })
     },
-
     attentionArticle (articleId, index, flag) {
       attentionArticle({ id: articleId, flag: flag }).then(res => {
         if (!res) {
-          this.$message('收藏失败，请稍后再试')
+          this.$message({
+            message: '收藏失败，请稍后再试',
+            type: 'error'
+          })
         } else if (flag === 0) {
           this.pageContent[index].userHasAttention = false
-          this.$message('取消收藏成功')
+          this.$message({
+            message: '取消收藏成功',
+            type: 'success'
+          })
         } else if (flag === 1) {
           this.pageContent[index].userHasAttention = true
-          this.$message('收藏成功')
+          this.$message({
+            message: '收藏成功',
+            type: 'success'
+          })
+          // 收藏时刷新通知数量
+          getMesSummary().then(res => {
+            this.$store.commit('getNoticeNum', res.messageCount)
+          })
         }
         this.getMyArticleCount()
       })
     },
-
     deleteArticle (index, articleId) {
       deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
         if (!res) {
-          this.$message('删除失败，请稍后再试')
+          this.$message({
+            message: '删除失败，请稍后再试',
+            type: 'error'
+          })
         } else {
           this.pageContent.splice(index, 1)
-          this.$message('删除成功')
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
         }
       })
     },
-
     topArticle (index, articleId, flag, topFlag) {
       topArticle({ id: articleId, flag: flag, topFlag: topFlag }).then(res => {
         if (!res) {
-          this.$message('操作失败，请稍后再试')
+          this.$message({
+            message: '操作失败，请稍后再试',
+            type: 'error'
+          })
         } else {
           if (flag === 'forum') {
             this.pageContent[index].forumTop = topFlag
           } else {
             this.pageContent[index].plateTop = topFlag
           }
-          this.$message('操作成功')
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
         }
       })
     },
-
     getCommentById (articleId) {
       commentList({ articleId: articleId, page: 1, pageSize: 1000 }).then(res => {
         for (let i = 0; i < res.records.length; i++) {
@@ -411,9 +527,12 @@ export default {
     showTag (articleId, index) {
       this.input = ''
       this.checked = false
+      Object.keys(this.restore).forEach((index) => {
+        this.restore[index] = false
+      })
+      this.$set(this.restore, index, false)
       // 循环对象 修改属性
       if (this.tag[index]) {
-        this.input = ''
         Object.keys(this.tag).forEach((index) => {
           this.tag[index] = false
         })
@@ -450,10 +569,8 @@ export default {
           }
         }
       })
-
       this.loading = false
     },
-
     choose (command) {
       const { href } = this.$router.resolve({ name: 'newArtical' })
       switch (command.command) {
@@ -463,7 +580,10 @@ export default {
       default:this.deleteArticle(command.index, command.articleId)
       }
     },
-    reflex (index) {
+    reflex (id, aliasName, index) {
+      this.repComId = id
+      this.repTopId = id
+      this.repName = aliasName
       // 循环对象 修改属性
       if (this.restore[index]) {
         this.search = ''
@@ -490,7 +610,6 @@ export default {
   .item {
     margin-bottom: 18px;
   }
-
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -499,7 +618,6 @@ export default {
   .clearfix:after {
     clear: both
   }
-
   .box-card {
     width: 44%;
     margin: 20px 20%;
@@ -509,11 +627,9 @@ export default {
     align-items: center;
     justify-content: space-between;
   }
-
   .tool-bar{
     text-align: right;
   }
-
   .box-card-right1,.box-card-right2{
      position: fixed;
     top: 81px;
