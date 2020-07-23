@@ -7,9 +7,9 @@
         <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id">{{ plate.plateName }}</el-menu-item>
         <el-submenu v-if="foldPlateList.length != 0" index="2">
           <template slot="title">更多</template>
-          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="plate.id">{{ foldPlate.plateName }}</el-menu-item>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
-        <el-menu-item index="-1"><a>管理</a></el-menu-item>
+        <el-menu-item v-if="isAdmin || userPlateList.length>0" index="-1"><a>管理</a></el-menu-item>
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
@@ -62,7 +62,7 @@ export default {
     ])
   },
   mounted () {
-    // 获取所有板块列表用于navbar
+    // 获取所有版块列表用于navbar
     getPlateList({}).then(res => {
       const showNum = 5
       for (let i = 0; i < res.length; i++) {
@@ -73,7 +73,6 @@ export default {
         }
         this.plateList.push(res[i])
       }
-      this.$store.commit('getPlateList', this.plateList)
     })
     getUserSetting().then(res => {
       this.userInfo = {
@@ -83,10 +82,12 @@ export default {
         imgUrl: res.imgUrl,
         gender: res.gender
       }
+      this.$store.commit('getPlateList', this.plateList)
     })
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList
+      this.$store.commit('getAdminState', res.isAdmin)
     })
   },
   methods: {
