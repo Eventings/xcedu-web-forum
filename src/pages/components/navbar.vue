@@ -4,16 +4,16 @@
       <logo />
       <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" mode="horizontal" @select="handleSelect">
         <el-menu-item index="0">首页</el-menu-item>
-        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate">{{ plate.plateName }}</el-menu-item>
+        <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id" :platename="plate.plateName">{{ plate.plateName }}</el-menu-item>
         <el-submenu v-if="foldPlateList.length != 0" index="2">
           <template slot="title">更多</template>
-          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate">{{ foldPlate.plateName }}</el-menu-item>
+          <el-menu-item v-for="foldPlate in foldPlateList" :key="foldPlate.id" :index="foldPlate.id" :platename="foldPlate.plateName">{{ foldPlate.plateName }}</el-menu-item>
         </el-submenu>
         <el-menu-item v-if="isAdmin || userPlateList.length>0" index="-1"><a>管理</a></el-menu-item>
       </el-menu>
       <div>
         <el-button type="primary " @click="newArticle">内容发布</el-button>
-        <el-badge :value="noticeNum" class="item" style="cursor:pointer">
+        <el-badge :value="noticeNum==0?'':noticeNum" class="item" style="cursor:pointer">
           <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
         <user />
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { userManagePlate, getPlateList, getUserSetting } from '@/api/index'
+import { userManagePlate, getPlateList } from '@/api/index'
 import { mapGetters } from 'vuex'
 import logo from '@page/components/logo'
 import user from '@page/components/user'
@@ -39,20 +39,13 @@ export default {
   data () {
     return {
       locationPath: '',
-      activeIndex: '0',
+      activeIndex: this.$route.query.index ? this.$route.query.index : '0',
       showPlateList: [],
       plateList: [],
       foldPlateList: [],
       isAdmin: false,
       userPlateList: [],
-      title: '',
-      userInfo: {
-        id: '',
-        trueName: '',
-        aliasName: '',
-        imgUrl: '',
-        gender: 0
-      }
+      title: ''
       // flag: this.$store.state.header
     }
   },
@@ -74,20 +67,11 @@ export default {
     this.init()
   },
   mounted () {
-    getUserSetting().then(res => {
-      this.userInfo = {
-        id: res.id,
-        trueName: res.trueName,
-        aliasName: res.aliasName,
-        imgUrl: res.imgUrl,
-        gender: res.gender
-      }
-      this.$store.commit('getPlateList', this.plateList)
-    })
     userManagePlate().then(res => {
       this.isAdmin = res.isAdmin
       this.userPlateList = res.plateList
     })
+    this.$store.commit('getPlateList', this.plateList)
   },
   methods: {
     init () {
@@ -107,18 +91,24 @@ export default {
         }
       })
     },
-    handleSelect (key, keyPath) {
-      window.console.log(key, keyPath)
+    handleSelect (key, keyPath, e) {
       if (key === '-1') {
         this.$router.replace({
-          path: '/mfs-forum/super-manage'
+          path: '/mfs-forum/super-manage',
+          query: {
+            index: key
+          }
+        })
+      } else if (key === '0') {
+        this.$router.replace({
+          path: '/mfs-forum/home/newest'
         })
       } else {
         this.$router.replace({
           path: '/mfs-forum/home/newest',
           query: {
-            index: key.id,
-            plateName: key.plateName
+            index: key,
+            plateName: e.$attrs.platename
           }
         })
       }
