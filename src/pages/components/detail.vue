@@ -7,7 +7,7 @@
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
-          <el-row>
+          <el-row class="boxHeight">
             <el-col :span="2">
               <div>
                 <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1/' + item.imgUrl + '&access_token=' + accessToken" />
@@ -573,6 +573,9 @@ export default {
       this.pageContent[index].expandOpen = true
     },
     retract (index) {
+      const boxHeight = document.querySelectorAll('.boxHeight')[index]
+      window.console.log(document.body.scrollTop, window.getComputedStyle(boxHeight).getPropertyValue('height'))
+      document.querySelector('.home').scrollTop = document.querySelector('.home').scrollTop - parseInt(window.getComputedStyle(boxHeight).getPropertyValue('height'))
       this.pageContent[index].expandOpen = false
     },
     discuss () {
