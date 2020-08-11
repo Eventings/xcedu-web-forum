@@ -12,7 +12,11 @@
           :select-role="roles"
           :get-user="getUser"
           :get-search-list="getSearchList"
+          @input="validateField('plateAdminJson')"
         />
+      </el-form-item>
+      <el-form-item label="排序码" :label-width="formLabelWidth" prop="sortNum">
+        <el-input v-model.number="form.sortNum" placeholder="请输入排序码" />
       </el-form-item>
     </el-form>
     <span slot="footer" style="padding-left: 120px">
@@ -23,7 +27,7 @@
 </template>
 <script>
 // import chooseUser from '@/component/chooseUser'
-import { savePlate, detailPlate, updatePlate, getChooseUserDataByParams, getSearchListByValue } from '@/api/index'
+import { savePlate, detailPlate, updatePlate, getChooseUserDataByParams, getSearchListByValue, getLatestSortNum } from '@/api/index'
 function nameValidator (rule, value, callback) {
   if (value.trim() === '') {
     callback(new Error('版块名称不能为空'))
@@ -37,11 +41,27 @@ export default {
     id: { type: String, default: '' }
   },
   data () {
+    var checkSortNum = (rule, value, callback) => {
+      if (!value && value !== 0) {
+        return callback(new Error('请输入排序码'))
+      }
+      if (!Number.isInteger(value)) {
+        callback(new Error('请输入正整数'))
+      } else {
+        if (value < 0) {
+          callback(new Error('排序码不能为负数'))
+        } else {
+          callback()
+        }
+      }
+    }
+
     return {
       formLabelWidth: '120px',
       form: {
         plateName: '',
-        plateAdminJson: []
+        plateAdminJson: [],
+        sortNum: 0
       },
       roles: ['orgUser'],
       rules: {
@@ -53,8 +73,11 @@ export default {
           }
         ],
         plateAdminJson: [
-          { required: true, message: '请选择管理员', trigger: 'blur' }
-        ]
+          { type: 'array', required: true, message: '管理员不能为空' }
+        ],
+        sortNum: [{
+          validator: checkSortNum, required: true, trigger: 'blur'
+        }]
       }
     }
   },
@@ -62,13 +85,22 @@ export default {
     if (this.id !== '') {
       detailPlate({ id: this.id }).then(res => {
         this.form.plateName = res.plateName
+        this.form.sortNum = res.sortNum
         this.form.plateAdminJson = JSON.parse(res.plateAdminJson)
+      })
+    } else {
+      getLatestSortNum().then(res => {
+        window.console.log(res)
+        this.form.sortNum = res + 1
       })
     }
   },
   methods: {
     getUser: getChooseUserDataByParams,
     getSearchList: getSearchListByValue,
+    validateField (type) {
+      this.$refs.numberValidateForm.validateField(type)
+    },
     saveForm (formName) {
       // 校验表单
       this.$refs[formName].validate((valid) => {
@@ -83,7 +115,8 @@ export default {
       const params = {
         id: this.id,
         plateName: this.form.plateName,
-        plateAdminJson: JSON.stringify(this.form.plateAdminJson)
+        plateAdminJson: JSON.stringify(this.form.plateAdminJson),
+        sortNum: this.form.sortNum
       }
       // 提交表单 成功后返回列表
       if (this.id === '') {

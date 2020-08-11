@@ -7,7 +7,7 @@
       </div>
       <div v-infinite-scroll="load" class="list" infinite-scroll-disabled="disabled">
         <div v-for="(item,index) in pageContent" :key="index" class="text item list-item">
-          <el-row>
+          <el-row class="boxHeight">
             <el-col :span="2">
               <div>
                 <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1/' + item.imgUrl + '&access_token=' + accessToken" />
@@ -49,12 +49,12 @@
               </div>
               <div class="margin-top-size-small" style="line-height:24px;margin-top:10px">
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" v-html="item.articleContentShort + ' ...'" />
-                <span v-show="(item.articleContentShort!==null && item.articleContentShort.length<50) || item.expandOpen" v-html="item.articleContent" />
+                <span v-show="(item.articleContentShort!==null && item.articleContentShort.length<50) || item.expandOpen" style="word-wrap: break-word" v-html="item.articleContent" />
                 <span v-show="item.articleContentShort && item.articleContentShort.length>=50 && !item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="expand(index)">展开全文</span>
                 <span v-show="item.expandOpen" class="color" style="cursor:pointer;margin-left:5px" @click="retract(index)">收起全文</span>
               </div>
               <div v-if="item.imgFileIds" class="margin-top-size-nomal">
-                <fileUp :value="item.imgFileIds" upload-type="image" readonly />
+                <FileUp :value="item.imgFileIds" upload-type="image" readonly />
               </div>
               <div class="margin-top-size-nomal text-color-grey tool-bar">
                 <span style="cursor:pointer" class="margin-right-size-large" @click.stop="showTag(item.id,index)">
@@ -82,7 +82,7 @@
           </el-row>
           <div class="fa-more replay margin-top-size-nomal" style="margin-top: 20px; margin-left: -20px; margin-right: -20px;">
             <transition name="el-fade-in-linear">
-              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow:inset 1px 3px 3px rgba(0,0,0,.05)">
+              <el-card v-show="tag[index]" ref="operate" style="border: 0 none; box-shadow:inset 1px 1px 1px rgba(0,0,0,.05)">
                 <!-- <div class="top" /> -->
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
@@ -122,12 +122,12 @@
                       <div>
                         <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复({{ comment.commentVoList.length }})</span>
                         <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                        <span v-show="comment.userHasLike">
-                          <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
+                        <span v-show="comment.userHasLike" style="cursor:pointer" @click="likeComment(num,comment.id,0)">
+                          <i class="icon-zan-shixin red" />
                           <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                         </span>
-                        <span v-show="!comment.userHasLike">
-                          <i class="icon-zan" @click="likeComment(num,comment.id,1)" />
+                        <span v-show="!comment.userHasLike" style="cursor:pointer" @click="likeComment(num,comment.id,1)">
+                          <i class="icon-zan" />
                           <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                         </span>
                       </div>
@@ -142,7 +142,7 @@
                         <span style="margin-left:10px">{{ reply.commentContent }}</span>
                         <div class="text-color-grey" style="margin-top:5px">
                           <span>{{ reply.createdDate }}</span>
-                          <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,reply.commentTopId,reply.aliasName)" />
+                          <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,comment.id,reply.aliasName)" />
                         </div>
                       </div>
                       <div style="display:flex">
@@ -185,8 +185,8 @@
     <el-card v-if="isIndexPage" class="box-card-right1 text-color-grey">
       <div class="text item bghover dss" @click="getArticle('myPub',$event)">
         <div>
-          <i class="icon-send" :class="myClick === '我发送的' ? 'color' : 'text-color-grey'" />
-          <span id="myPub" :class="myClick === '我发送的' ? 'color' : ''">我发送的</span>
+          <i class="icon-send" :class="myClick === '我发布的' ? 'color' : 'text-color-grey'" />
+          <span id="myPub" :class="myClick === '我发布的' ? 'color' : ''">我发布的</span>
         </div>
         <el-tag type="info" size="small " class="bgfff">{{ myCount.publishCount }}</el-tag>
       </div>
@@ -228,11 +228,7 @@
 <script>
 import { hotList, getArticleByPlate, getMyArticleCount, getUserSetting, commentList, saveComment, deleteArticle, attentionArticle, likeArticle, topArticle, plateManagerList, likeComment, getMesSummary } from '@/api/index'
 import { arrayToStrWithOutComma } from '@/util/index'
-import fileUp from '@/component/fileUp'
 export default {
-  components: {
-    fileUp
-  },
   data () {
     return {
       userInfo: {
@@ -266,7 +262,9 @@ export default {
       repComId: '',
       repTopId: '',
       repName: '',
-      myClick: ''
+      myClick: '',
+      likeClickState: true,
+      boxScrolltop: 0
     }
   },
   computed: {
@@ -298,14 +296,8 @@ export default {
       this.load()
     }
   },
-  created () {
-
-  },
   mounted () {
-    // 获取list
-    hotList({ listNum: 5 }).then(res => {
-      this.hotArticles = res
-    })
+    this.getHotList()
     this.getMyArticleCount()
     getUserSetting().then(res => {
       this.userInfo = {
@@ -319,6 +311,7 @@ export default {
     document.removeEventListener('click', this.handleClick, false)
   },
   methods: {
+
     preViewDetails (id) {
       const { href } = this.$router.resolve({ name: 'previewDetails' })
       window.open(href + '?id=' + id, '_self')
@@ -366,7 +359,7 @@ export default {
             message: '回复成功',
             type: 'success'
           })
-          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator })
+          this.commentList[num].commentVoList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentAliasName: this.repName, imgUrl: this.userInfo.userAvator, userHasLike: false, commentLikeNum: 0 })
           this.repChecked = false
           this.repInput = ''
           // 回复时刷新通知数量
@@ -391,7 +384,7 @@ export default {
             type: 'success'
           })
           this.pageContent[index].commentNum++
-          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
+          this.commentList.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator, userHasLike: false, commentLikeNum: 0 })
           this.getMyArticleCount()
           // 评论时刷新通知数量
           this.flushNoitceNum()
@@ -406,31 +399,35 @@ export default {
       })
     },
     likeComment (index, commentId, flag) {
-      likeComment({ index, commentId: commentId, flag: flag }).then(res => {
-        if (res) {
-          let msg = ''
-          if (flag === 0) {
-            msg = '取消点赞成功'
-            this.commentList[index].userHasLike = false
-            this.commentList[index].commentLikeNum--
+      if (this.likeClickState) {
+        this.likeClickState = false
+        likeComment({ index, commentId: commentId, flag: flag }).then(res => {
+          if (res) {
+            let msg = ''
+            if (flag === 0) {
+              msg = '取消点赞成功'
+              this.commentList[index].userHasLike = false
+              this.commentList[index].commentLikeNum--
+            } else {
+              msg = '点赞成功'
+              this.commentList[index].userHasLike = true
+              this.commentList[index].commentLikeNum++
+            }
+            this.$message({
+              message: msg,
+              type: 'success'
+            })
+            // 点赞时刷新通知数量
+            this.flushNoitceNum()
           } else {
-            msg = '点赞成功'
-            this.commentList[index].userHasLike = true
-            this.commentList[index].commentLikeNum++
+            this.$message({
+              message: '点赞失败',
+              type: 'error'
+            })
           }
-          this.$message({
-            message: msg,
-            type: 'success'
-          })
-          // 点赞时刷新通知数量
-          this.flushNoitceNum()
-        } else {
-          this.$message({
-            message: '点赞失败',
-            type: 'error'
-          })
-        }
-      })
+          this.likeClickState = true
+        })
+      }
     },
     // 预处理dropdown 将帖子id装入command
     beforeHandleCommand (index, articleId, topFlag, command) {
@@ -442,56 +439,70 @@ export default {
       }
     },
     likeArticle (articleId, index, flag) {
-      likeArticle({ articleId: articleId, flag: flag }).then(res => {
-        if (!res) {
-          this.$message({
-            message: '操作失败',
-            type: 'error'
-          })
-        } else if (flag === 0) {
-          this.pageContent[index].likeNum--
-          this.pageContent[index].userHasLike = false
-          this.$message({
-            message: '取消点赞成功',
-            type: 'success'
-          })
-          this.flushNoitceNum()
-        } else if (flag === 1) {
-          this.pageContent[index].likeNum++
-          this.pageContent[index].userHasLike = true
-          this.$message({
-            message: '点赞成功',
-            type: 'success'
-          })
-          // 点赞时刷新通知数量
-          this.flushNoitceNum()
-        }
-      })
+      if (this.likeClickState) {
+        this.likeClickState = false
+        likeArticle({ articleId: articleId, flag: flag }).then(res => {
+          if (!res) {
+            this.$message({
+              message: '操作失败',
+              type: 'error'
+            })
+          } else if (flag === 0) {
+            this.pageContent[index].likeNum--
+            this.pageContent[index].userHasLike = false
+            this.$message({
+              message: '取消点赞成功',
+              type: 'success'
+            })
+            this.flushNoitceNum()
+          } else if (flag === 1) {
+            this.pageContent[index].likeNum++
+            this.pageContent[index].userHasLike = true
+            this.$message({
+              message: '点赞成功',
+              type: 'success'
+            })
+            // 点赞时刷新通知数量
+            this.flushNoitceNum()
+          }
+          this.likeClickState = true
+        })
+      }
     },
     attentionArticle (articleId, index, flag) {
-      attentionArticle({ id: articleId, flag: flag }).then(res => {
-        if (!res) {
-          this.$message({
-            message: '收藏失败，请稍后再试',
-            type: 'error'
-          })
-        } else if (flag === 0) {
-          this.pageContent[index].userHasAttention = false
-          this.$message({
-            message: '取消收藏成功',
-            type: 'success'
-          })
-          this.flushNoitceNum()
-        } else if (flag === 1) {
-          this.pageContent[index].userHasAttention = true
-          this.$message({
-            message: '收藏成功',
-            type: 'success'
-          })
-          // 收藏时刷新通知数量
-          this.flushNoitceNum()
-        }
-        this.getMyArticleCount()
+      if (this.likeClickState) {
+        this.likeClickState = false
+        attentionArticle({ id: articleId, flag: flag }).then(res => {
+          if (!res) {
+            this.$message({
+              message: '收藏失败，请稍后再试',
+              type: 'error'
+            })
+          } else if (flag === 0) {
+            this.pageContent[index].userHasAttention = false
+            this.$message({
+              message: '取消收藏成功',
+              type: 'success'
+            })
+            this.flushNoitceNum()
+          } else if (flag === 1) {
+            this.pageContent[index].userHasAttention = true
+            this.$message({
+              message: '收藏成功',
+              type: 'success'
+            })
+            // 收藏时刷新通知数量
+            this.flushNoitceNum()
+          }
+          this.likeClickState = true
+          this.getMyArticleCount()
+        })
+      }
+    },
+    getHotList () {
+      // 获取list
+      hotList({ listNum: 5 }).then(res => {
+        this.hotArticles = res
       })
     },
     deleteArticle (index, articleId) {
@@ -500,12 +511,18 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        if (this.tag) {
+          Object.keys(this.tag).forEach((index) => {
+            this.tag[index] = false
+          })
+        }
         deleteArticle({ ids: arrayToStrWithOutComma(articleId.split(',')) }).then(res => {
           if (!res) {
             this.$message.error('删除失败，请稍后再试')
           } else {
             this.pageContent.splice(index, 1)
             this.getMyArticleCount()
+            this.getHotList()
             this.$message.success('删除成功')
           }
         })
@@ -529,9 +546,17 @@ export default {
           } else {
             this.pageContent[index].plateTop = topFlag
           }
-          // let item =  this.pageContent[index];
-          //  this.pageContent.splice(index,1)
-          //  this.pageContent.unshift(item)
+          if (topFlag === 1) {
+            const item = this.pageContent[index]
+            this.pageContent.splice(index, 1)
+            this.pageContent.unshift(item)
+          } else {
+            this.pageContent = []
+            this.nomoreState = false
+            this.pageNumber = 1
+            this.recordNum = 0
+            this.load()
+          }
           this.$message({
             message: '操作成功',
             type: 'success'
@@ -565,20 +590,27 @@ export default {
           this.tag[index] = false
         })
         this.$set(this.tag, index, true)
+        this.commentList = []
+        this.getCommentById(articleId)
       }
-      this.commentList = []
-      this.getCommentById(articleId)
     },
     expand (index) {
       this.pageContent[index].expandOpen = true
     },
     retract (index) {
+      const boxHeight = document.querySelectorAll('.boxHeight')[index]
+      document.querySelector('.home').scrollTop = document.querySelector('.home').scrollTop - parseInt(window.getComputedStyle(boxHeight).getPropertyValue('height'))
       this.pageContent[index].expandOpen = false
     },
     discuss () {
       this.show = !this.show
     },
     load () {
+      if (this.tag) {
+        Object.keys(this.tag).forEach((index) => {
+          this.tag[index] = false
+        })
+      }
       this.loading = true
       // 切换到管理监听不到  通过路由参数获取plateId
       if (this.$route.query.index === '0' || !this.$route.query.index) {
