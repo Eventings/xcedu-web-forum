@@ -28,18 +28,19 @@
       <el-form-item label="" prop="articleContent">
         <editor v-model="form.articleContent" />
       </el-form-item>
+      <el-form-item label="匿名发帖">
+        <el-checkbox
+          v-model="checked"
+          @change="changeAnonymous"
+        />
+      </el-form-item>
       <el-form-item label="相关图片">
         <FileUp
           v-model="form.imgFileIds"
           upload-type="image"
           :domain-id="domainId"
           dir="forum"
-        />
-      </el-form-item>
-      <el-form-item label="匿名发帖">
-        <el-checkbox
-          v-model="checked"
-          @change="changeAnonymous"
+          style="padding-top:5px"
         />
       </el-form-item>
     </el-form>
@@ -91,7 +92,7 @@ export default {
           }
         ],
         plateId: [
-          { required: true, message: '请选择所属版块', trigger: 'blur' }
+          { required: true, message: '请选择所属版块', trigger: 'change' }
         ],
         articleContent: [
           { required: true, message: '内容不能为空', trigger: 'blur' }
@@ -136,7 +137,7 @@ export default {
       this.form = {
         id: res.id,
         articleTitle: res.articleTitle,
-        plateId: res.plateId,
+        plateId: res.plateId ? res.plateId : '',
         articleContent: res.articleContent,
         imgFileIds: res.imgFileIds,
         fileIds: res.fileIds,
@@ -153,21 +154,28 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          const loading = this.$loading({
+            lock: true,
+            text: 'Loading',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
           if (this.$route.query.id) {
             updateArticle(this.form).then(res => {
               this.$message.success('修改成功')
+              loading.close()
               this.$router.push({ path: '/mfs-forum' })
+            }).catch(err => {
+              loading.close()
+              this.$message.error(err)
             })
           } else {
             createArticle(this.form).then(res => {
-              // this.$message.success('发布成功').then(() => {
-              //   setTimeout(() => {
-              //     window.close()
-              //   }, 1000)
-              // })
               this.$message.success('发布成功')
+              loading.close()
               this.$router.push({ path: '/mfs-forum' })
             }).catch(err => {
+              loading.close()
               this.$message.error(err)
             })
           }

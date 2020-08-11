@@ -92,12 +92,12 @@
                   <div>
                     <span style="cursor:pointer" @click="reflex(comment.id,comment.aliasName,num)">回复（{{ comment.commentVoList.length }}）</span>
                     <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                    <span v-show="comment.userHasLike">
-                      <i class="icon-zan-shixin red" @click="likeComment(num,comment.id,0)" />
+                    <span v-show="comment.userHasLike" style="cursor:pointer" @click="likeComment(num,comment.id,0)">
+                      <i class="icon-zan-shixin red" />
                       <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                     </span>
-                    <span v-show="!comment.userHasLike">
-                      <i class="icon-zan" @click="likeComment(num,comment.id,1)" />
+                    <span v-show="!comment.userHasLike" style="cursor:pointer" @click="likeComment(num,comment.id,1)">
+                      <i class="icon-zan" />
                       <span>&nbsp;&nbsp;{{ comment.commentLikeNum == null ? 0 : comment.commentLikeNum }}</span>
                     </span>
                   </div>
@@ -112,7 +112,7 @@
                     <span style="margin-left:10px">{{ reply.commentContent }}</span>
                     <div class="text-color-grey" style="margin-top:5px">
                       <span>{{ reply.createdDate }}</span>
-                      <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,reply.commentTopId,reply.aliasName)" />
+                      <span style="margin-left:10px;cursor:pointer" class="el-icon-chat-line-round" @click="repReply(reply.id,comment.id,reply.aliasName)" />
                     </div>
                   </div>
                   <div style="display:flex">
@@ -155,7 +155,8 @@ export default {
       resTopId: '',
       repName: '',
       repInput: '',
-      repChecked: false
+      repChecked: false,
+      clickState: true
     }
   },
 
@@ -179,31 +180,46 @@ export default {
   },
   methods: {
     deleteArticle () {
-      deleteArticle({ ids: arrayToStrWithOutComma(this.article.id.split(',')) }).then(res => {
-        if (!res) {
-          this.$message.error('删除失败，请稍后再试')
-        } else {
-          this.$message.success('删除成功')
-          this.$router.push({ name: 'home' })
-        }
+      this.$confirm('此操作将删除该帖子, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle({ ids: arrayToStrWithOutComma(this.article.id.split(',')) }).then(res => {
+          if (!res) {
+            this.$message.error('删除失败，请稍后再试')
+          } else {
+            this.$message.success('删除成功')
+            this.$router.push({ name: 'home' })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     },
     goBacktToHome () {
       this.$router.push({ name: 'home' })
     },
     topArticle (flag, topFlag) {
-      topArticle({ id: this.article.id, flag: flag, topFlag: topFlag }).then(res => {
-        if (!res) {
-          this.$message.error('操作失败，请稍后再试')
-        } else {
-          if (flag === 'forum') {
-            this.article.forumTop = topFlag
+      if (this.clickState) {
+        this.clickState = false
+        topArticle({ id: this.article.id, flag: flag, topFlag: topFlag }).then(res => {
+          if (!res) {
+            this.$message.error('操作失败，请稍后再试')
           } else {
-            this.article.plateTop = topFlag
+            if (flag === 'forum') {
+              this.article.forumTop = topFlag
+            } else {
+              this.article.plateTop = topFlag
+            }
+            this.$message.success('操作成功')
           }
-          this.$message.success('操作成功')
-        }
-      })
+          this.clickState = true
+        })
+      }
     },
     sendComment () {
       if (!this.commentInput) {
@@ -214,7 +230,7 @@ export default {
         if (res) {
           this.$message.success('评论成功')
           this.article.commentNum++
-          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator })
+          this.comments.push({ id: res.id, aliasName: res.aliasName, anonymous: res.anonymous, commentContent: res.commentContent, createdDate: '刚刚', commentVoList: [], imgUrl: this.userInfo.userAvator, userHasLike: false, commentLikeNum: 0 })
           this.commentInput = ''
         } else {
           this.$message.error('评论保存失败')
@@ -238,50 +254,62 @@ export default {
       })
     },
     likeArticle (flag) {
-      likeArticle({ articleId: this.article.id, flag: flag }).then(res => {
-        if (!res) {
-          this.$message.error('操作失败')
-        } else if (flag === 0) {
-          this.article.likeNum--
-          this.article.userHasLike = false
-          this.$message.success('取消点赞成功')
-        } else if (flag === 1) {
-          this.article.likeNum++
-          this.article.userHasLike = true
-          this.$message.success('点赞成功')
-        }
-      })
+      if (this.clickState) {
+        this.clickState = false
+        likeArticle({ articleId: this.article.id, flag: flag }).then(res => {
+          if (!res) {
+            this.$message.error('操作失败')
+          } else if (flag === 0) {
+            this.article.likeNum--
+            this.article.userHasLike = false
+            this.$message.success('取消点赞成功')
+          } else if (flag === 1) {
+            this.article.likeNum++
+            this.article.userHasLike = true
+            this.$message.success('点赞成功')
+          }
+          this.clickState = true
+        })
+      }
     },
     likeComment (index, commentId, flag) {
-      likeComment({ index, commentId: commentId, flag: flag }).then(res => {
-        if (res) {
-          this.$message.success('点赞成功')
-          if (flag === 0) {
-            this.comments[index].userHasLike = false
-            this.comments[index].commentLikeNum--
+      if (this.clickState) {
+        this.clickState = false
+        likeComment({ index, commentId: commentId, flag: flag }).then(res => {
+          if (res) {
+            this.$message.success('点赞成功')
+            if (flag === 0) {
+              this.comments[index].userHasLike = false
+              this.comments[index].commentLikeNum--
+            } else {
+              this.comments[index].userHasLike = true
+              this.comments[index].commentLikeNum++
+            }
           } else {
-            this.comments[index].userHasLike = true
-            this.comments[index].commentLikeNum++
+            this.$message.error('点赞失败')
           }
-        } else {
-          this.$message.error('点赞失败')
-        }
-      })
+          this.clickState = true
+        })
+      }
     },
     attentionArticle (flag) {
-      attentionArticle({ id: this.article.id, flag: flag }).then(res => {
-        if (!res) {
-          this.$message.error('收藏失败，请稍后再试')
-        } else if (flag === 0) {
-          this.article.attentionNum--
-          this.article.userHasAttention = false
-          this.$message.success('取消收藏成功')
-        } else if (flag === 1) {
-          this.article.attentionNum++
-          this.article.userHasAttention = true
-          this.$message.success('收藏成功')
-        }
-      })
+      if (this.clickState) {
+        this.clickState = false
+        attentionArticle({ id: this.article.id, flag: flag }).then(res => {
+          if (!res) {
+            this.$message.error('收藏失败，请稍后再试')
+          } else if (flag === 0) {
+            this.article.attentionNum--
+            this.article.userHasAttention = false
+            this.$message.success('取消收藏成功')
+          } else if (flag === 1) {
+            this.article.attentionNum++
+            this.article.userHasAttention = true
+            this.$message.success('收藏成功')
+          }
+          this.clickState = true
+        })
+      }
     },
     repReply (id, topId, repName) {
       this.repComId = id

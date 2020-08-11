@@ -72,6 +72,11 @@ export function deletePlateById (params) {
   return axios.get(prefix + '/advise/plate/delete', { params: params })
 }
 
+// 获取最新板块排序码
+export function getLatestSortNum () {
+  return axios.get(prefix + '/advise/plate/getLatestSortNum')
+}
+
 // --------------------------------评论相关接口-------------------------------
 
 // 获取帖子的评论列表
@@ -150,10 +155,6 @@ export function getNoticeList (params) {
 // 获得帖子列表
 export function getArticleList (params) {
   return axios.get(prefix + '/advise/article/pagelist', { params: params })
-}
-// 通过id删除帖子
-export function deleteArticleById (params) {
-  return axios.delete(prefix + '/advise/article/deleteById', { params: params })
 }
 // 将文章置顶
 export function articleTop (params) {
