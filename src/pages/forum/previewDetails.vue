@@ -1,6 +1,6 @@
 <template>
   <section style="width: 840px; margin: 0 auto; background: #fff;margin-top:20px">
-    <el-card>
+    <el-card class="htmlcontent">
       <div style="display:flex;align-items:center;justify-content: space-between;">
         <div style="display:flex;align-items:center;">
           <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="'/api/v1/' + article.imgUrl + '&access_token=' + accessToken" />
@@ -19,7 +19,7 @@
         </div>
       </div>
       <div style="padding:10px;font-size:20px;font-weight: bold" v-html="article.articleTitle" />
-      <div style="padding:10px;text-indent: 25px;line-height: 20px;" v-html="article.articleContent" />
+      <div style="padding:10px;text-indent: 25px;line-height: 20px;word-break:break-all" v-html="article.articleContent" />
       <div />
 
       <div style="display:flex;justify-content:space-between;padding:10px;">
@@ -357,5 +357,9 @@ export default {
   }
   .operate{
     margin-right:15px;cursor:pointer;
+  }
+  .htmlcontent >>> * {
+  max-width: 100%;
+  text-indent: 0 !important;
   }
 </style>

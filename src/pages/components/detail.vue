@@ -768,4 +768,8 @@ export default {
   .active{
     color:#3396fc;
   }
+  .htmlcontent >>> * {
+  max-width: 100%;
+  text-indent: 0 !important;
+  }
 </style>
