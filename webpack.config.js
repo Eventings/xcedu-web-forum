@@ -79,6 +79,7 @@ const baseConf = (env = 'production') => ({
       '@style': resolve('src/styles'),
       '@router': resolve('src/router'),
       '@util': resolve('src/utils'),
+      '@xcedu-web-share': resolve('../xcedu-web-share'),
       vue$: 'vue/dist/vue.runtime.esm.js'
     },
     extensions: [

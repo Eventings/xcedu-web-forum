@@ -107,7 +107,7 @@ export default {
         messageCount: 0,
         noticeSum: 0
       },
-      accessToken: localStorage.getItem('token')
+      accessToken: window.webStorage.getItem('token')
     }
   },
   computed: {

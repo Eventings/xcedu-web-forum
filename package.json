@@ -96,7 +96,6 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@xcedu/web-share": "^1.0.12",
     "vuex": "3.1.2"
   }
 }

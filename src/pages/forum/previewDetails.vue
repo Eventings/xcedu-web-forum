@@ -145,7 +145,7 @@ export default {
       article: {
 
       },
-      accessToken: localStorage.getItem('token'),
+      accessToken: window.webStorage.getItem('token'),
       restore: {},
       anonymous: false,
       commentInput: '',

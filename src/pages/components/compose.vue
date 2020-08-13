@@ -40,7 +40,6 @@
           upload-type="image"
           :domain-id="domainId"
           dir="forum"
-          style="padding-top:5px"
         />
       </el-form-item>
     </el-form>
