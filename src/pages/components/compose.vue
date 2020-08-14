@@ -153,6 +153,7 @@ export default {
             spinner: 'el-icon-loading',
             background: 'rgba(0, 0, 0, 0.7)'
           })
+          this.form.articleContent = this.form.articleContent.replace(/\n/g, '')
           if (this.$route.query.id) {
             updateArticle(this.form).then(res => {
               this.$message.success('修改成功')
