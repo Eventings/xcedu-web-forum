@@ -93,9 +93,9 @@ const baseConf = (env = 'production') => ({
       '.wasm'
     ]
   },
-  // externals: {
+  externals: {
   //   vue: 'Vue',
-  //   vuex: 'Vuex',
+    vuex: 'Vuex'
   //   'vue-router': 'VueRouter',
   //   axios: 'axios',
   //   'element-ui': 'ELEMENT',
@@ -105,7 +105,7 @@ const baseConf = (env = 'production') => ({
   //   'systemjs-webpack-interop': 'SystemjsWebapckInterop',
   //   'vuex-router-sync': 'VuexRouterSync',
   //   nprogress: 'NProgress'
-  // },
+  },
   module: {
     rules: [{
       enforce: 'pre',
