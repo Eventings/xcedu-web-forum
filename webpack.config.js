@@ -79,7 +79,6 @@ const baseConf = (env = 'production') => ({
       '@style': resolve('src/styles'),
       '@router': resolve('src/router'),
       '@util': resolve('src/utils'),
-      '@xcedu-web-share': resolve('../xcedu-web-share'),
       vue$: 'vue/dist/vue.runtime.esm.js'
     },
     extensions: [
@@ -94,17 +93,18 @@ const baseConf = (env = 'production') => ({
     ]
   },
   externals: {
-  //   vue: 'Vue',
-    vuex: 'Vuex'
-  //   'vue-router': 'VueRouter',
-  //   axios: 'axios',
-  //   'element-ui': 'ELEMENT',
-  //   'vue-class-component': 'VueClassComponent',
-  //   'vue-property-decorator': 'VuePropertyDecorator',
-  //   'vuex-class': 'VuexClass',
-  //   'systemjs-webpack-interop': 'SystemjsWebapckInterop',
-  //   'vuex-router-sync': 'VuexRouterSync',
-  //   nprogress: 'NProgress'
+    // vue: 'Vue',
+    vuex: 'Vuex',
+    // 'vue-router': 'VueRouter',
+    // axios: 'axios',
+    // 'element-ui': 'ELEMENT',
+    // 'vue-class-component': 'VueClassComponent',
+    // 'vue-property-decorator': 'VuePropertyDecorator',
+    // 'vuex-class': 'VuexClass',
+    // 'systemjs-webpack-interop': 'SystemjsWebapckInterop',
+    // 'vuex-router-sync': 'VuexRouterSync',
+    // nprogress: 'NProgress'
+    'xc-share': 'XcShare'
   },
   module: {
     rules: [{
