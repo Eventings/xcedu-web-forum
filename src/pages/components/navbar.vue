@@ -2,7 +2,7 @@
   <section class="app-forum-navbar">
     <div>
       <div>
-        <logo />
+        <Logo />
         <el-menu :default-active="activeIndex" class="margin-lr-auto main-menu" style="width: auto;" mode="horizontal" @select="handleSelect">
           <el-menu-item index="0">首页</el-menu-item>
           <el-menu-item v-for="plate in showPlateList" :key="plate.id" :index="plate.id" :platename="plate.plateName">{{ plate.plateName }}</el-menu-item>
@@ -18,7 +18,7 @@
         <el-badge :value="noticeNum || ''" class="pointer item">
           <i class="el-icon-bell size-large-xx" @click="directNotice " />
         </el-badge>
-        <user />
+        <User />
       </div>
     </div>
   </section>
@@ -27,11 +27,8 @@
 <script>
 import { userManagePlate, getPlateList } from '@/api/index'
 import { mapGetters } from 'vuex'
-import logo from '@page/components/logo'
-import user from '@page/components/user'
 export default {
   name: 'Navbar',
-  components: { logo, user },
   data () {
     return {
       locationPath: '',
