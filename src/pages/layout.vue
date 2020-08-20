@@ -34,8 +34,7 @@ export default {
       // window.webStorage.setItem('token', tmpToken)
     }
     getUserInfo().then(res => {
-      this.user = res
-      window.webStorage.setItem('userInfo', JSON.stringify(this.user))
+      window.webStorage.setItem('userInfo', JSON.stringify(res))
       next()
     })
   },
