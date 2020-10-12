@@ -2,7 +2,7 @@
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
     <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium">
       <el-form-item label="版块名称" :label-width="formLabelWidth" prop="plateName">
-        <el-input v-model="form.plateName" placeholder="板块名称（1~10个字符）" />
+        <el-input v-model.trim="form.plateName" placeholder="版块名称（1~10个字符）" />
       </el-form-item>
       <el-form-item label="管理员" :label-width="formLabelWidth" prop="plateAdminJson">
         <chooseUser
@@ -27,14 +27,7 @@
 </template>
 <script>
 // import chooseUser from '@/component/chooseUser'
-import { savePlate, detailPlate, updatePlate, getChooseUserDataByParams, getSearchListByValue, getLatestSortNum } from '@/api/index'
-function nameValidator (rule, value, callback) {
-  if (value.trim() === '') {
-    callback(new Error('版块名称不能为空'))
-  } else {
-    callback()
-  }
-}
+import { savePlate, detailPlate, updatePlate, plateNameIsExist, getChooseUserDataByParams, getSearchListByValue, getLatestSortNum } from '@/api/index'
 export default {
   name: 'PortalSet',
   props: {
@@ -55,7 +48,23 @@ export default {
         }
       }
     }
-
+    var nameValidator = (rule, value, callback) => {
+      if (value.trim() === '') {
+        callback(new Error('版块名称不能为空'))
+      } else {
+        if (this.id !== '' && value === this.originalPlateName) {
+          callback()
+          return
+        }
+        plateNameIsExist({ plateName: this.form.plateName }).then(res => {
+          if (res) {
+            callback(new Error('版块名称已重复，请重新输入'))
+          } else {
+            callback()
+          }
+        })
+      }
+    }
     return {
       formLabelWidth: '120px',
       form: {
@@ -63,13 +72,14 @@ export default {
         plateAdminJson: [],
         sortNum: 0
       },
+      originalPlateName: '',
       roles: ['orgUser'],
       rules: {
         plateName: [
           { required: true, message: '版块名称不能为空', trigger: 'blur' },
           { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' },
           {
-            validator: nameValidator
+            validator: nameValidator, trigger: 'blur'
           }
         ],
         plateAdminJson: [
@@ -85,6 +95,7 @@ export default {
     if (this.id !== '') {
       detailPlate({ id: this.id }).then(res => {
         this.form.plateName = res.plateName
+        this.originalPlateName = res.plateName
         this.form.sortNum = res.sortNum
         this.form.plateAdminJson = JSON.parse(res.plateAdminJson)
       })

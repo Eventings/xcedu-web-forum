@@ -1,6 +1,6 @@
 <template>
   <section style="width: 840px; margin: 0 auto; background: #fff;margin-top:20px">
-    <el-card>
+    <el-card class="htmlcontent">
       <div style="display:flex;align-items:center;justify-content: space-between;">
         <div style="display:flex;align-items:center;">
           <el-avatar v-if="article.anonymous === 0 && article.imgUrl" :src="'/api/v1/' + article.imgUrl + '&access_token=' + accessToken" />
@@ -18,18 +18,18 @@
           <el-button type="default" @click="goBacktToHome">返回首页</el-button>
         </div>
       </div>
-      <div style="padding:10px;font-size:20px" v-html="article.articleTitle" />
-      <div style="padding:10px;text-indent: 25px;line-height: 20px;" v-html="article.articleContent" />
+      <div style="padding:10px;font-size:20px;font-weight: bold" v-html="article.articleTitle" />
+      <div style="padding:10px;text-indent: 25px;line-height: 20px;word-break:break-all" v-html="article.articleContent" />
       <div />
 
       <div style="display:flex;justify-content:space-between;padding:10px;">
         <div style="color:#3396fc">
-          <!-- <span v-show="article.userIsAdmin" class="operate" @click="edit">编辑</span> -->
+          <span v-show="article.userIsAuthor" class="operate" @click="edit">编辑</span>
           <span v-show="article.userIsAdmin||article.userIsAuthor" class="operate" @click="deleteArticle">删除</span>
-          <span v-show="article.userIsAdmin && article.forumTop === 0" class="operate" @click="topArticle('forum',1)">全论坛置顶</span>
+          <span v-show="article.userIsAdmin && article.forumTop === 0" class="operate" @click="topArticle('forum',1)">论坛置顶</span>
           <span v-show="article.userIsAdmin && article.forumTop === 1" class="operate" @click="topArticle('forum',0)">取消论坛置顶</span>
-          <span v-show="article.userIsAdmin && article.plateTop === 0" class="operate" @click="topArticle('plate',1)">板块置顶</span>
-          <span v-show="article.userIsAdmin && article.plateTop ===1" class="operate" @click="topArticle('plate',0)">取消板块置顶</span>
+          <span v-show="article.userIsAdmin && article.plateTop === 0" class="operate" @click="topArticle('plate',1)">版块置顶</span>
+          <span v-show="article.userIsAdmin && article.plateTop ===1" class="operate" @click="topArticle('plate',0)">取消版块置顶</span>
         </div>
         <div>
           <span v-show="!article.userHasLike" class="operate" @click="likeArticle(1)">
@@ -145,7 +145,7 @@ export default {
       article: {
 
       },
-      accessToken: localStorage.getItem('token'),
+      accessToken: window.webStorage.getItem('token'),
       restore: {},
       anonymous: false,
       commentInput: '',
@@ -334,17 +334,17 @@ export default {
         })
         this.$set(this.restore, index, true)
       }
+    },
+    edit () {
+      // const { href } = this.$router.resolve({ name: 'newArtical' })
+      // window.open(href + '?id=' + this.$route.query.id, '_self')
+      this.$router.push({
+        path: '/mfs-forum/newArtical',
+        query: {
+          id: this.$route.query.id
+        }
+      })
     }
-    // edit () {
-    //   // const { href } = this.$router.resolve({ name: 'newArtical' })
-    //   // window.open(href + '?id=' + this.$route.query.id, '_self')
-    //   this.$router.push({
-    //     path: '/mfs-forum/newArtical',
-    //     query: {
-    //       id: this.$route.query.id
-    //     }
-    //   })
-    // }
   }
 }
 </script>
@@ -357,5 +357,9 @@ export default {
   }
   .operate{
     margin-right:15px;cursor:pointer;
+  }
+  .htmlcontent >>> * {
+  max-width: 100%;
+  text-indent: 0 !important;
   }
 </style>
