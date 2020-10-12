@@ -60,4 +60,7 @@ export default {
 .superManage >>> .el-tabs__nav-wrap{
   padding-left: 30px;
 }
+.superManage >>> .el-dropdown-link{
+  color:#333;
+}
 </style>

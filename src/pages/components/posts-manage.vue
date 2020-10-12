@@ -49,7 +49,7 @@
             </div>
             <div class="ds margin-top-size-nomal" style="margin-left: 55px">
               <el-button type="primary" @click="retrieval">搜索</el-button>
-              <el-button @click="cancel">清除</el-button>
+              <el-button plain @click="cancel">清除</el-button>
             </div>
           </div>
         </el-collapse-transition>

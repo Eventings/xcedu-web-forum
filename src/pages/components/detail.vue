@@ -218,9 +218,7 @@
             <div> {{ hotArticle.readNum == null ? 0 : hotArticle.readNum }}次</div>
           </div>
         </el-tooltip>
-
       </div>
-
     </el-card>
   </div>
 </template>
@@ -309,6 +307,9 @@ export default {
         userName: res.trueName
       }
     })
+    if (window.location.search.indexOf('index') !== -1) {
+      this.isIndexPage = false
+    }
   },
   beforeDestroy () {
     document.removeEventListener('click', this.handleClick, false)
@@ -700,7 +701,7 @@ export default {
   .box-card-right1,.box-card-right2{
      position: fixed;
     top: 81px;
-    left: 65%;
+    left: 64.6%;
     width: 300px;
    }
    .box-card-right2{
