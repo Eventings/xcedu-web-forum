@@ -384,4 +384,19 @@ export default {
   font-size: 14px;
   word-break: break-all;
 }
+.manage >>> .el-dialog__wrapper .el-dialog {
+  margin-top: -150px !important;
+}
+
+.posts >>> .el-dialog__header{
+  border-bottom:none!important;
+}
+
+.posts >>> .el-dialog__title{
+  font-size:14px
+}
+
+.posts >>> .el-dialog__body{
+  padding:10px 20px 20px 20px
+}
 </style>
