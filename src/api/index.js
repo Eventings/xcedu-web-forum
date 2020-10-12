@@ -1,4 +1,4 @@
-import { axios } from '@xcedu/web-share'
+import { axios } from 'xc-share'
 
 // 测试环境需要在请求url前加前缀
 const prefix = '/api-personalized'
@@ -22,10 +22,19 @@ export function getUserSetting () {
   return axios.get(prefix + '/advise/user/setting/getUserSetting')
 }
 
+export function getUserInfoById (params) {
+  return axios.get(prefix + '/advise/user/setting/getUserInfoById', { params })
+}
+
 // ------------------------版块管理相关接口---------------------
 // 新增版块
 export function createPlate (form) {
   return axios.post(prefix + '/advise/plate/create', form)
+}
+
+// 判断版块名称是否存在
+export function plateNameIsExist (params) {
+  return axios.get(prefix + '/advise/plate/plateNameIsExist', { params: params })
 }
 
 // 保存版块
@@ -72,7 +81,7 @@ export function deletePlateById (params) {
   return axios.get(prefix + '/advise/plate/delete', { params: params })
 }
 
-// 获取最新板块排序码
+// 获取最新版块排序码
 export function getLatestSortNum () {
   return axios.get(prefix + '/advise/plate/getLatestSortNum')
 }

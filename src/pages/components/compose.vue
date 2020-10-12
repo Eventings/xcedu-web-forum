@@ -26,7 +26,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="" prop="articleContent">
-        <editor v-model="form.articleContent" />
+        <Editor v-model="form.articleContent" />
       </el-form-item>
       <el-form-item label="匿名发帖">
         <el-checkbox
@@ -40,7 +40,6 @@
           upload-type="image"
           :domain-id="domainId"
           dir="forum"
-          style="padding-top:5px"
         />
       </el-form-item>
     </el-form>
@@ -48,8 +47,6 @@
 </template>
 <script>
 import { getUserInfo, createArticle, updateArticle, getNoPubArticle, getPlateList } from '@/api/index'
-// import fileUp from '@/component/fileUp'
-import editor from '@/component/editor'
 function nameValidator (rule, value, callback) {
   if (!value || value.trim() === '') {
     callback(new Error('标题不能为空'))
@@ -58,10 +55,6 @@ function nameValidator (rule, value, callback) {
   }
 }
 export default {
-  components: {
-    // fileUp,
-    editor
-  },
   props: {
     flag: {
       type: Number,
@@ -160,6 +153,7 @@ export default {
             spinner: 'el-icon-loading',
             background: 'rgba(0, 0, 0, 0.7)'
           })
+          this.form.articleContent = this.form.articleContent.replace(/\n/g, '')
           if (this.$route.query.id) {
             updateArticle(this.form).then(res => {
               this.$message.success('修改成功')

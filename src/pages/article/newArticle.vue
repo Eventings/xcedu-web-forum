@@ -2,7 +2,7 @@
   <section class="app-forum-create">
     <section class="app-forum-navbar">
       <div>
-        <logo />
+        <Logo />
         <div class="app-forum-navbar-title">
           <h3 class="size-large-x">内容发布</h3>
         </div>
@@ -16,11 +16,9 @@
   </section>
 </template>
 <script>
-import logo from '@page/components/logo'
 import newArticle from '@page/components/compose'
 export default {
   components: {
-    logo,
     newArticle
   },
   data () {

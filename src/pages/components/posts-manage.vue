@@ -1,5 +1,5 @@
 <template>
-  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large ">
+  <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large posts">
     <header>
       <div class="dss">
         <div class="ds">
@@ -71,8 +71,9 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="del">删除</el-dropdown-item>
-                <el-dropdown-item v-show="scope.row.userIsAdmin" command="forumTop"><span v-show="scope.row.forumTop">取消</span>全论坛置顶</el-dropdown-item>
+                <el-dropdown-item v-show="scope.row.userIsAdmin" command="forumTop"><span v-show="scope.row.forumTop">取消</span>论坛置顶</el-dropdown-item>
                 <el-dropdown-item command="plateTop"><span v-show="scope.row.plateTop">取消</span>版块置顶</el-dropdown-item>
+                <el-dropdown-item v-show="scope.row.userIsAdmin && scope.row.anonymous === 1" command="authorInfo">发布人信息</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -91,6 +92,9 @@
         />
       </div>
     </div>
+    <el-dialog title="实际发布人" width="18%" :visible.sync="userVisible" :modal="false">
+      <span>{{ userInfo.userName }}</span>
+    </el-dialog>
   </section>
 </template>
 
@@ -99,7 +103,8 @@ import {
   getArticleList,
   deleteArticle,
   articleTop,
-  getPlateList
+  getPlateList,
+  getUserInfoById
 } from '@/api/index'
 export default {
   props: {
@@ -110,6 +115,7 @@ export default {
   },
   data () {
     return {
+      userVisible: false,
       forumTop: false,
       plateTop: false,
       advancedSearch: false,
@@ -125,6 +131,12 @@ export default {
         pubTimeEnd: '',
         page: 1,
         pageSize: 10
+      },
+      userInfo: {
+        userName: '',
+        aliasName: '',
+        gender: 0,
+        avator: ''
       },
       // 总记录数
       totalRecords: 0,
@@ -255,7 +267,17 @@ export default {
       this.flushArticleList()
     },
     choose (title, row) {
-      if (title === 'del') {
+      if (title === 'authorInfo') {
+        this.userVisible = true
+        getUserInfoById({ articleId: row.id }).then(res => {
+          this.userInfo = {
+            userName: res.trueName,
+            aliasName: res.aliasName,
+            gender: res.gender,
+            avator: res.imgUrl
+          }
+        })
+      } else if (title === 'del') {
         this.$confirm('此操作将删除该帖子 , 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
