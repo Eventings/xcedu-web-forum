@@ -6,6 +6,7 @@
       :model="form"
       label-width="100px"
       style="margin: 0 auto; width: 1000px;"
+      @submit.native.prevent
     >
       <el-form-item label="标题" prop="articleTitle">
         <el-input

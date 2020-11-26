@@ -1,6 +1,6 @@
 <template>
   <section class="padding-left-size-nomal padding-right-size-nomal padding-bottom-size-large">
-    <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium">
+    <el-form ref="numberValidateForm" :model="form" :rules="rules" size="medium" @submit.native.prevent>
       <el-form-item label="版块名称" :label-width="formLabelWidth" prop="plateName">
         <el-input v-model.trim="form.plateName" placeholder="版块名称（1~10个字符）" />
       </el-form-item>

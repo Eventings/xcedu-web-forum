@@ -55,7 +55,7 @@
       </div>
     </div>
     <el-dialog title="删除版块" :visible.sync="deletePlateVisible">
-      <el-form ref="transferForm" :model="transferForm" :rules="rules">
+      <el-form ref="transferForm" :model="transferForm" :rules="rules" @submit.native.prevent>
         <el-form-item :label-width="formLabelWidth">
           该版块中已有发布的内容，需要先将已发布的内容转移到其它版块
         </el-form-item>
