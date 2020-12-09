@@ -34,6 +34,20 @@ export default {
       // window.webStorage.setItem('token', tmpToken)
     }
     getUserInfo().then(res => {
+      // const color = res.skin.split('.')[1]
+      // const href = document.getElementById('skinColor').title
+      // const href1 = href + 'element/element-' + color + '.css'
+      // const href2 = href + 'widget/common-' + color + '.css'
+      // const link1 = document.createElement('link')
+      // const link2 = document.createElement('link')
+      // link1.href = href1
+      // link1.rel = 'stylesheet'
+      // link1.type = 'text/css'
+      // link2.href = href2
+      // link2.rel = 'stylesheet'
+      // link2.type = 'text/css'
+      // document.head.appendChild(link1)
+      // document.head.appendChild(link2)
       window.webStorage.setItem('userInfo', JSON.stringify(res))
       next()
     })

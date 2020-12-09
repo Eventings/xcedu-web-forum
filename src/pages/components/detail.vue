@@ -11,7 +11,7 @@
             <el-col :span="2">
               <div>
                 <el-avatar v-if="item.anonymous === 0 && item.imgUrl" :src="'/api/v1/' + item.imgUrl + '&access_token=' + accessToken" />
-                <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                <div v-if="item.anonymous === 0 && !item.imgUrl" style="width:40px;height:40px;border-radius:50%;color:#fff;line-height:40px;text-align:center" class="bgcolor">
                   {{ item.aliasName.slice(item.aliasName.length - 2 , item.aliasName.length) }}
                 </div>
                 <el-avatar v-if="item.anonymous === 1" :src="require('@/assets/user.png')" />
@@ -87,7 +87,7 @@
                 <div style="display:flex">
                   <el-col :span="2" class="mr-10">
                     <el-avatar v-if="userInfo.userAvator" :src="'/api/v1/' + userInfo.userAvator + '&access_token=' + accessToken" />
-                    <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                    <div v-else style="width:40px;height:40px;border-radius:50%;color:#fff;line-height:40px;text-align:center" class="bgcolor">
                       {{ userInfo.userName.slice(userInfo.userName.length - 2 , userInfo.userName.length) }}
                     </div>
                   </el-col>
@@ -107,7 +107,7 @@
                 <div v-for="(comment,num) in commentList" :key="num" class="margin-top-size-mix padding-top-size-mix replay-line" style="display:flex; ">
                   <el-col :span="2" class="mr-10">
                     <el-avatar v-if="comment.anonymous === 0 && comment.imgUrl" :src="'/api/v1/' + comment.imgUrl + '&access_token=' + accessToken" />
-                    <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+                    <div v-if="comment.anonymous === 0 && !comment.imgUrl" style="width:40px;height:40px;border-radius:50%;color:#fff;line-height:40px;text-align:center" class="bgcolor">
                       {{ comment.aliasName.slice(comment.aliasName.length - 2 , comment.aliasName.length) }}
                     </div>
                     <el-avatar v-if="comment.anonymous === 1" :src="require('@/assets/user.png')" />
@@ -175,7 +175,7 @@
       </div>
       <div v-for="(manager,index) in plateManager" :key="index" class="text item bghover" style="display:flex;align-items:center">
         <el-avatar v-if="manager.userImgUrl" :src="'/api/v1/' + manager.userImgUrl + '&access_token=' + accessToken" />
-        <div v-else style="width:40px;height:40px;border-radius:50%;background:#3396fc;color:#fff;line-height:40px;text-align:center">
+        <div v-else style="width:40px;height:40px;border-radius:50%;color:#fff;line-height:40px;text-align:center" class="bgcolor">
           {{ manager.userName.slice(manager.userName.length - 2 , manager.userName.length) }}
         </div>
         <span style="margin-left:10px">{{ manager.userName }}</span>
