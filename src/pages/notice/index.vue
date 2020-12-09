@@ -25,6 +25,8 @@
               <span>
                 {{ notice.noticeContent != null ? notice.noticeContent : notice.commentContent }}
               </span>
+            </div>
+            <div class="margin-top-size-mix clearfix">
               <span v-if="!isNotice && notice.articleIsDelete===0" style="float:right;cursor:pointer" class="el-icon-chat-line-round" @click.stop="showTag(notice.commentId,index)">
                 回复
               </span>
